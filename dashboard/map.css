@@ -1,0 +1,46 @@
+@import url("./cartography/leaflet.css");
+.campaign-atlas{--a-ink:#102d4b;--a-blue:#214e79;--a-line:#dce3e9;--a-red:#a73743;position:relative;isolation:isolate;background:#fff;color:var(--a-ink);font:14px/1.45 Inter,Arial,sans-serif}
+.campaign-atlas *{box-sizing:border-box}
+.campaign-atlas .at-tools{display:flex;gap:10px;justify-content:space-between;align-items:end;padding:12px 16px;background:white;border-top:1px solid var(--a-line);border-bottom:1px solid var(--a-line)}
+.campaign-atlas .at-field{display:grid;gap:5px;font-size:12px;line-height:1.2;font-weight:650;color:#506376;min-width:0}
+.campaign-atlas select{position:static;appearance:none;display:block;width:100%;min-width:0;border:1px solid #c8d3dd;border-radius:5px;padding:7px 29px 7px 9px;line-height:1.3;color:#19364f;font:600 14px/1.4 Inter,Arial,sans-serif;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a6c7d' stroke-width='2.2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 9px center;cursor:pointer}
+.campaign-atlas .at-stage{position:relative;background:#e9edee;overflow:hidden}
+.campaign-atlas .at-canvas{height:clamp(420px,55vh,660px);width:100%;isolation:isolate;background:#e9edee;font:13px Inter,Arial,sans-serif}
+.campaign-atlas.is-compact .at-canvas{height:337px}
+.campaign-atlas.is-compact .at-tools{display:none}
+.campaign-atlas .at-quick-layer{position:absolute;left:12px;top:12px;z-index:410;display:none;max-width:calc(100% - 80px);box-shadow:0 2px 9px #152c4126;border-radius:4px}
+.campaign-atlas.is-compact .at-quick-layer{display:block}
+.campaign-atlas .at-quick-layer select{font-size:12px;border-color:#ced9e0;max-width:190px;min-height:31px}
+.campaign-atlas .at-map-buttons{position:absolute;right:12px;top:12px;z-index:410;display:grid;background:#fff;border:1px solid #c3cdd5;border-radius:5px;overflow:hidden;box-shadow:0 2px 9px #152c4126}
+.campaign-atlas .at-map-buttons button{display:grid;place-items:center;width:34px;height:33px;min-height:0;margin:0;padding:0;border:0;border-radius:0;background:#fff;color:#244058;cursor:pointer;transition:background .12s}
+.campaign-atlas .at-map-buttons button+button{border-top:1px solid #dce3e7}
+.campaign-atlas .at-map-buttons button:hover{background:#eff4f8}
+.campaign-atlas .at-map-buttons button:disabled{color:#a8b0b8;cursor:default}
+.campaign-atlas .at-map-buttons svg{width:17px;height:17px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.campaign-atlas .at-mapkey{position:absolute;bottom:24px;left:12px;z-index:410;max-width:calc(100% - 56px);background:#ffffffef;border:1px solid #cdd7df;padding:7px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:5px 12px;border-radius:4px;box-shadow:0 2px 9px #18334c13;font:600 12px/1.4 Inter,Arial,sans-serif}
+.campaign-atlas .at-keypart{display:inline-flex;gap:6px;align-items:center;white-space:nowrap}
+.campaign-atlas .at-swatch{width:11px;height:11px;border:1px solid #12355238;border-radius:2px;flex:none}
+.campaign-atlas .at-mapfoot{padding:9px 15px;border-top:1px solid #d3dee6;color:#526475;font-size:12px;line-height:1.45;background:#fbfcfd}
+.campaign-atlas .at-mapfoot a{color:#274f71;text-decoration:underline;text-underline-offset:2px}
+.campaign-atlas .at-summary{display:grid;grid-template-columns:1fr 1.1fr;align-items:center;gap:10px;padding:13px 16px;border-top:1px solid var(--a-line)}
+.campaign-atlas .at-summary h4,.campaign-atlas .at-summary p{margin:0;}
+.campaign-atlas .at-summary h4{font:650 16px/1.4 Inter,Arial,sans-serif;letter-spacing:0}
+.campaign-atlas .at-summary p{color:#526475;margin-top:2px;font-size:13px}
+.campaign-atlas .at-summary .at-values{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px 18px}
+.campaign-atlas .at-values span{display:grid;gap:2px;font:500 12px/1.35 Inter,Arial,sans-serif;color:#536575}
+.campaign-atlas .at-values b{order:-1;color:#183753;font:700 17px/1.2 Inter,Arial,sans-serif}
+.campaign-atlas .at-compact-select{display:none}
+.campaign-atlas .at-label{pointer-events:none!important;background:none;border:0;width:auto!important;height:auto!important;white-space:nowrap;transform-origin:center center}
+.campaign-atlas .at-label span{display:inline-block;transform:translate(-50%,-50%);user-select:none;color:#4d6277;text-shadow:-1px -1px 1px #fff,1px 1px 1px #fff,-1px 1px 1px #fff,1px -1px 1px #fff;font:650 11px/1.1 Inter,Arial,sans-serif}
+.campaign-atlas .at-label.area span{letter-spacing:.10em;font-size:10px;text-transform:uppercase;color:#506273}
+.campaign-atlas .at-label.road span{font-size:10px;color:#748280;font-weight:500}
+.campaign-atlas .at-label.water span{font:italic 13px/1.1 Georgia,serif;color:#457286;transform:translate(-50%,-50%) rotate(-76deg)}
+.campaign-atlas .at-label.prec span{font-size:12px;background:#ffffffd9;color:#243c58;padding:2px 4px;border-radius:3px;letter-spacing:.01em;text-shadow:none}
+.campaign-atlas .leaflet-control-attribution{font:10px/1.4 Arial,sans-serif;color:#42596a;background:#fcfdfbe8}
+.campaign-atlas .leaflet-control-attribution a{color:#34546e}
+.campaign-atlas .leaflet-control-scale-line{font:10px/1 Arial,sans-serif;color:#3e5565;border-color:#71828c;background:#ffffffb3;border-width:0 1px 1px}
+.campaign-atlas .leaflet-tooltip{font:600 12px/1.3 Inter,Arial,sans-serif;color:#163850;border:1px solid #bccbd6;box-shadow:0 1px 5px #102d4b20}
+.campaign-atlas .at-loading{padding:35px 16px;color:#526475}
+.campaign-atlas .at-visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.campaign-atlas .at-stage:focus-within,.campaign-atlas button:focus-visible,.campaign-atlas select:focus-visible{outline:2px solid #537dac;outline-offset:1px}
+@media(max-width:630px){.campaign-atlas .at-tools{align-items:stretch;display:grid;grid-template-columns:1fr 1fr;padding:10px;gap:6px}.campaign-atlas select{font-size:13px}.campaign-atlas .at-summary{grid-template-columns:1fr;gap:8px}.campaign-atlas .at-summary .at-values{justify-content:flex-start}.campaign-atlas .at-mapkey{gap:4px 9px;bottom:21px;left:8px}.campaign-atlas .at-keypart{font-size:11px}.campaign-atlas .at-canvas{height:415px}.campaign-atlas.is-compact .at-canvas{height:315px}.campaign-atlas .at-summary,.campaign-atlas .at-mapfoot{padding-left:12px;padding-right:12px}}
