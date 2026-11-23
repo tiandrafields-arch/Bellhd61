@@ -79,16 +79,19 @@
       else aside.append(title,scope);
       summary.append(aside,amounts);
       const foot=node("div","at-mapfoot");
-      let selected=null,mode=options.mode&&values[options.mode]?options.mode:"registration",drawn=null,edge=null;
+      const layers = options.plan ? {plan: options.plan.layer} : values;
+      let selected = null, drawn = null, edge = null;
+      let mode = options.plan ? 'plan' : (Object.hasOwn(layers, options.mode) ? options.mode : 'registration');
       const visibleFeatures=()=>geography.precincts.features.filter(f=>usesCouncil(mode) || f.properties.house);
       const titleLayer=node("label","at-field","Map layer"),titlePrec=node("label","at-field","Inspect precinct");
       titlePrec.append(toolSelect);tools.append(titleLayer,titlePrec);
       const layerSelect=node("select"),quickSelect=node("select");
       for (const sel of [layerSelect,quickSelect]) {
-        sel.setAttribute("aria-label","Map layer");Object.entries(values).forEach(([id,v])=>option(sel,id,v.name));sel.value=mode;
+        sel.setAttribute("aria-label","Map layer");Object.entries(layers).forEach(([id,v])=>option(sel,id,v.name));sel.value=mode;
         sel.onchange=()=>changeMode(sel.value);
       }
       titleLayer.append(layerSelect);corner.append(quickSelect);
+      if (options.plan) {corner.remove(); titleLayer.remove();}
       container.replaceChildren(tools,stage,summary,foot);
       map=L.map(canvas,{zoomControl:false,attributionControl:false,scrollWheelZoom:false,zoomSnap:.05,zoomDelta:.5,preferCanvas:true,minZoom:11,maxZoom:16,zoomAnimation:false,fadeAnimation:false,maxBounds:[[30.355,-91.25],[30.55,-91.012]],maxBoundsViscosity:.82});
       const attrib=L.control.attribution({prefix:false,position:"bottomright"}).addTo(map);
@@ -114,7 +117,7 @@
       }
       function style(f,hover=false){
         const p=f.properties,active=p.id===selected;
-        return {color:active?"#9b3545":hover?"#843a49":"#70899e",weight:active?3:hover?2.2:.85,opacity:active?1:.86,fillColor:values[mode].color(p),fillOpacity:active?.76:mode==="overlap"?.60:mode==="bell"?.57:.53,lineJoin:"round"};
+        return {color:active?"#9b3545":hover?"#843a49":"#70899e",weight:active?3:hover?2.2:.85,opacity:active?1:.86,fillColor:layers[mode].color(p),fillOpacity:active?.76:mode==="overlap"?.60:mode==="bell"?.57:.53,lineJoin:"round"};
       }
       const renderer=L.canvas({padding:.3}),edgeRenderer=L.svg({pane:"atEdges",padding:.3});
       function draw(){
@@ -158,6 +161,10 @@
         if(p&&compact&&mode!=="bell"&&!isTurnout(mode))metrics=[metrics[0]];
         if(compact&&isTurnout(mode))metrics=metrics.slice(0,2);
         if(compact&&!p&&mode==="registration")metrics=[["Registered",fmt(geography.summary.registration.registered)]];
+        if (mode === 'plan') {
+          scope.textContent = options.plan.scope;
+          metrics = options.plan.metrics(p?.id);
+        }
         amounts.replaceChildren(...metrics.map(([label,value])=>{const s=node("span",null,label),b=node("b",null,value);s.append(b);return s}));
       }
       function selectArea(id,pan=false){
@@ -172,6 +179,7 @@
       function reference(){
         const election=mode==="bell";
         foot.replaceChildren();
+        if (mode === 'plan') {foot.textContent = options.plan.note; return;}
         if(mode === 'repeat'){
           foot.append('Active voters who cast a ballot in at least two of the three elections we reviewed. November 23, 2026 file. ');
           const methodology = node('a',null,'Dates and methods');
@@ -188,7 +196,7 @@
       }
       function changeMode(next){
         mode=next;selected=null;layerSelect.value=mode;quickSelect.value=mode;
-        key.replaceChildren(...values[mode].key.map(([label,color])=>{const s=node("span","at-keypart");const sw=node("i","at-swatch");sw.style.background=color;s.append(sw,label);return s}));
+        key.replaceChildren(...layers[mode].key.map(([label,color])=>{const s=node("span","at-keypart");const sw=node("i","at-swatch");sw.style.background=color;s.append(sw,label);return s}));
         fillList();draw();detail();reference();fit();labelMap();
       }
       function labelMap(){

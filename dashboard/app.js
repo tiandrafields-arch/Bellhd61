@@ -3,7 +3,7 @@ const root=document.querySelector('#view');
 const paths={grid:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',map:'<path d="m3 5 6-2 6 3 6-2v15l-6 2-6-3-6 2zM9 3v15m6-12v15"/>',history:'<path d="M4 10a8.5 8.5 0 1 1 .8 7M3 4v6h6m3-3v6l4 2"/>',calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M7 3v4m10-4v4M7 14h4"/>',brief:'<rect x="3" y="6" width="18" height="15" rx="2"/><path d="M8 6V3h8v3M3 11a22 22 0 0 0 18 0m-11 2h4"/>',book:'<path d="M3 5c4-1 6-1 9 1 3-2 6-2 9-1v14c-4-1-6-1-9 1-3-2-5-2-9-1zm9 1v14"/>',print:'<path d="M7 9V3h10v6M7 17H4V9h16v8h-3"/><path d="M7 14h10v7H7zm9-3h1"/>',lock:'<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 4v3"/>',users:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2m0-15a3 3 0 0 1 0 6m2 3q4 1 4 6"/>',ballot:'<path d="m6 9 7-7 6 6-7 7zM7 12H5l-2 5v4h18v-4l-2-5h-3M3 17h18"/>',layers:'<path d="m12 3 9 5-9 5-9-5zM3 12l9 5 9-5M3 16l9 5 9-5"/>',pin:'<path d="M12 21c2-3 7-8 7-12a7 7 0 1 0-14 0c0 4 5 9 7 12z"/><circle cx="12" cy="9" r="2"/>',flag:'<path d="M5 22V3c5-4 9 5 15 1v10c-6 4-10-5-15-1"/>'};
 function icon(id){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(paths[id]||'')+'</svg>'}
 document.querySelectorAll('[data-ico]').forEach(e=>e.innerHTML=icon(e.dataset.ico));
-const tabs=[['overview','Overview','grid'],['voterfile','Active voter file','users'],['atlas','District atlas','map'],['history','Election history','history'],['calendar','Calendar & finance','calendar'],['investment','Campaign investment','brief'],['sources','Sources','book']];
+const tabs=[['overview','Overview','grid'],['voterfile','Voters and outreach','users'],['atlas','District atlas','map'],['history','Election history','history'],['calendar','Calendar & finance','calendar'],['investment','Campaign investment','brief'],['sources','Sources','book']];
 const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const num=n=>Number(n).toLocaleString('en-US');
 const pct=(n,total)=>total?(n/total*100).toFixed(1)+'%':'—';
@@ -38,31 +38,23 @@ function voterfile(){
   const file = DATA.voterFile;
   const [none, one, two, three] = file.tiers;
   const dates = ['October 14, 2023 · State primary', 'December 7, 2024 · Runoff election', 'March 29, 2025 · Constitutional amendment election'];
-  const row = cells => '<tr>' + cells.map((v,i) => i === 0 ? '<th scope="row">' + v + '</th>' : '<td class="num">' + v + '</td>').join('') + '</tr>';
-  const areaRows = Object.entries(file.areas).map(([id, counts]) => {
-    const active = counts.reduce((a,b) => a+b, 0);
-    return row([id.replace('1-', '1 / '), num(active), num(counts[2]), num(counts[3]), pct(counts[2]+counts[3], active)]);
-  }).join('');
-  const headCells = ['Ward / precinct area', 'Active voters', 'Voted in exactly 2', 'Voted in all 3', 'Share who voted in at least 2'];
   const datesRows = dates.map((label,i) => bar(label,file.participation[i],file.records,'#365c83')).join('');
   root.innerHTML = head('Active voter file', 'How many active voters in the November 23, 2026 file cast a ballot in the three elections below?', 'House District 61 / November 23, 2026')
     + '<section class="split voter-summary" aria-label="Active voters and their election participation">'
     + metric('Active registered voters', num(file.records), 'People listed as active in the District 61 voter file on November 23, 2026. This is the total used for the percentage.', 'users')
     + metric('Voted in at least 2 of the 3 elections', num(two + three), pct(two + three, file.records) + ' of all ' + num(file.records) + ' active voters.'
       + '<ul class="voter-breakdown"><li><strong>' + num(three) + '</strong> voted in all three elections.</li><li><strong>' + num(two) + '</strong> voted in exactly two elections.</li></ul>', 'ballot') + '</section>'
+    + '<section class="panel precinct-plan" id="precinctPlan" aria-label="Precinct outreach planner"></section>'
     + '<div class="split"><section class="panel panelpad"><h2>Which three elections?</h2><p class="help">Each bar shows how many people in the November 23 file voted on that date. Someone who voted in all three appears in each bar and counts once in the total above.</p>' + datesRows + '</section>'
     + '<section class="panel panelpad"><h2>What about the other ' + num(none + one) + ' voters?</h2><p>They are also registered as active. Of this group, ' + num(one) + ' have a recorded vote in exactly one of these elections and ' + num(none) + ' have no recorded vote in these three elections.</p>'
     + '<p>New registrants had fewer opportunities to vote. The state supplies up to 20 entries per voter, so older votes can fall outside this file. A recorded date shows that a person cast a ballot in Louisiana. Their candidate choices are private.</p></section></div>'
-    + '<section class="panel sectiongap"><div class="cardhead"><div><h2>Participation by precinct area</h2><p class="help">The voter file lists 32 precinct codes. The map combines A and B subdivisions into 24 precinct areas. The table groups voters by where they live now.</p></div>'+titlelink('atlas','Open atlas')+'</div>'
-    + '<div class="votertable" tabindex="0" role="region" aria-label="Precinct participation table"><table class="tbl"><thead><tr>'
-    + headCells.map(h=>'<th scope="col">'+h+'</th>').join('')+'</tr></thead><tbody>'+areaRows
-    + '</tbody><tfoot>'+row(['District total',num(file.records),num(two),num(three),pct(two+three,file.records)])+'</tfoot></table></div></section>'
     + '<section class="panel panelpad sectiongap"><h2>Registration baseline</h2><p>The November 1 state report counted ' + num(current.total) + ' active and inactive registrations. The November 23 analysis counts ' + num(file.records) + ' active voter records in the purchased file. The two totals have different dates and coverage.</p>'
     + ext('https://www.sos.la.gov/electionsandvoting/publisheddocuments/recordformatsheet.pdf','State voter file format')+'</section>';
+  mapInstance = PrecinctOutreach.mount(document.getElementById('precinctPlan'));
 }
 
 function overview(){
- root.innerHTML=hero+'<section class="stats" aria-label="District indicators">'+metric('Registered voters',num(current.total),'House District 61 · Nov 1, 2026','users')+metric('District turnout','47.4%','Nov 3, 2026 · 12,171 voters','ballot')+metric('Active voter file',num(DATA.voterFile.records),'District 61 · Nov 23, 2026','users')+metric('Bell’s council vote','47.2%','6,092 votes · Council District 7, 2024','flag')+'</section><section class="panel voterupdate"><div><h2>Repeat voters in District 61</h2><p>'+num(DATA.voterFile.tiers[2]+DATA.voterFile.tiers[3])+' active voters cast a ballot in at least two of the three elections we reviewed.</p></div>'+titlelink('voterfile','Explore the active voter file')+'</section><div class="gridmain"><section class="panel">'+cardHead('Geography','District atlas',titlelink('atlas','Open atlas'))+'<div id="atlasMap"></div></section><section class="panel">'+cardHead('November 2026','Who is registered?')+'<div class="partyblock" id="mix"></div>'+sourcebar(ret.registration,'Louisiana Secretary of State','District 61')+'</section></div><div class="sectiontop"><div class="mini">Campaign decisions</div></div><div class="split">'+watch()+'<div class="panel story"><div class="mini">The next investment</div><h3>Reach beyond the council footprint</h3><p>Eight House precinct areas, home to 9,193 registered voters, were outside Bell’s 2024 council contest. A field plan for these neighborhoods is a distinct piece of work.</p>'+titlelink('investment','Review the proposed scope')+'</div></div>';
+ root.innerHTML=hero+'<section class="stats" aria-label="District indicators">'+metric('Registered voters',num(current.total),'House District 61 · Nov 1, 2026','users')+metric('District turnout','47.4%','Nov 3, 2026 · 12,171 voters','ballot')+metric('Active voter file',num(DATA.voterFile.records),'District 61 · Nov 23, 2026','users')+metric('Bell’s council vote','47.2%','6,092 votes · Council District 7, 2024','flag')+'</section><section class="panel voterupdate"><div><h2>Repeat voters in District 61</h2><p>'+num(DATA.voterFile.tiers[2]+DATA.voterFile.tiers[3])+' active voters cast a ballot in at least two of the three elections we reviewed.</p></div>'+titlelink('outreach','Plan doors and mailers')+'</section><div class="gridmain"><section class="panel">'+cardHead('Geography','District atlas',titlelink('atlas','Open atlas'))+'<div id="atlasMap"></div></section><section class="panel">'+cardHead('November 2026','Who is registered?')+'<div class="partyblock" id="mix"></div>'+sourcebar(ret.registration,'Louisiana Secretary of State','District 61')+'</section></div><div class="sectiontop"><div class="mini">Campaign decisions</div></div><div class="split">'+watch()+'<div class="panel story"><div class="mini">The next investment</div><h3>Reach beyond the council footprint</h3><p>Eight House precinct areas, home to 9,193 registered voters, were outside Bell’s 2024 council contest. A field plan for these neighborhoods is a distinct piece of work.</p>'+titlelink('investment','Review the proposed scope')+'</div></div>';
  bindMix();bindMap(true);
 }
 function atlas(){
@@ -155,6 +147,23 @@ function sources(){
  root.innerHTML=head('Sources & methods','Public records, reporting periods and assumptions behind this briefing.')+'<section class="panel panelpad"><div class="mini">Source register</div><h2>Research record</h2><div class="sectiongap">'+rows.map(([n,u,d])=>'<div class="srcrow"><div>'+ext(u,n)+'</div><p>'+d+'</p></div>').join('')+'</div></section><div class="split sectiongap"><section class="panel panelpad"><div class="mini">Candidate information</div><h2>Campaign attribution</h2><p class="wideintro">Bell’s title as chair of the East Baton Rouge Democratic Parish Executive Committee is supplied by the campaign. The portrait was supplied for this briefing. The proposed paid scope is prepared by Provisional Consulting LLC.</p></section><section class="panel panelpad"><div class="mini">Data use</div><h2>Aggregate reporting</h2><p class="wideintro">The dashboard combines published reports with aggregate counts from the campaign’s November 23 voter file. Cash worksheet entries, scope selections and checklist progress are saved in the current browser. Official campaign finance reports are filed separately with the Board of Ethics.</p></section></div>';
 }
 const renderers={overview,voterfile,atlas,history,calendar,investment,sources};
-function showTab(){const t=location.hash.slice(1);const next=Object.hasOwn(renderers,t)?t:'overview';if(mapInstance&&typeof mapInstance.destroy==='function')mapInstance.destroy();mapInstance=null;activeTab=next;document.body.classList.toggle('printcalendar',activeTab==='calendar');for(const a of nav.querySelectorAll('a')){let selected=a.dataset.tab===activeTab;a.classList.toggle('active',selected);if(selected)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')}renderers[activeTab]();document.title=tabs.find(r=>r[0]===activeTab)[1]+' | Alfred Bell | District 61';window.scrollTo(0,0)}
+function showTab(){
+  const hash = location.hash.slice(1);
+  const tab = hash === 'outreach' ? 'voterfile' : hash;
+  activeTab = Object.hasOwn(renderers, tab) ? tab : 'overview';
+  mapInstance?.destroy();
+  mapInstance = null;
+  document.body.classList.toggle('printcalendar', activeTab === 'calendar');
+  for (const link of nav.querySelectorAll('a')) {
+    const selected = link.dataset.tab === activeTab;
+    link.classList.toggle('active', selected);
+    if (selected) link.setAttribute('aria-current', 'page');
+    else link.removeAttribute('aria-current');
+  }
+  renderers[activeTab]();
+  document.title = (hash === 'outreach' ? 'Precinct outreach planner' : tabs.find(row => row[0] === activeTab)[1]) + ' | Alfred Bell | District 61';
+  if (hash === 'outreach') document.getElementById('precinctPlan').scrollIntoView();
+  else window.scrollTo(0,0);
+}
 window.addEventListener('hashchange',showTab);
 let printDetails=[];window.addEventListener('beforeprint',()=>{printDetails=[...root.querySelectorAll('details:not([open])')];for(const el of printDetails)el.open=true});window.addEventListener('afterprint',()=>{for(const el of printDetails)el.open=false;printDetails=[]});document.querySelector('#print').onclick=()=>window.print();document.querySelector('.skip').onclick=e=>{e.preventDefault();document.querySelector('#main').focus()};showTab();
