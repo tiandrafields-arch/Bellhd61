@@ -15,7 +15,7 @@
     values[id]={name:year+" November turnout",key:[["Below 40%","#d5e5ee"],["40% to under 55%","#9ebfd4"],["55% or more","#598bae"]],color:p=>p[id].turnoutPct>=55?"#598bae":p[id].turnoutPct>=40?"#9ebfd4":"#d5e5ee"};
   }
   values.repeat = {
-    name: 'Voters on two or three dates',
+    name: 'Voted in at least 2 of 3 elections',
     key: [['Below 200','#d5e5ee'],['200 to 299','#9ebfd4'],['300 or more','#598bae']],
     color(p) {
       const tiers = DATA.voterFile.areas[p.id];
@@ -153,7 +153,7 @@
         if(mode === 'repeat'){
           const tiers = p ? DATA.voterFile.areas[p.id] : DATA.voterFile.tiers;
           scope.textContent = 'Active file · Nov 23, 2026';
-          metrics = [['Two or three dates',fmt(tiers[2]+tiers[3])],['All three dates',fmt(tiers[3])],['Active records',fmt(tiers.reduce((a,b)=>a+b,0))]];
+          metrics = [['Voted in at least 2 of 3',fmt(tiers[2]+tiers[3])],['Voted in all 3',fmt(tiers[3])],['Active voters',fmt(tiers.reduce((a,b)=>a+b,0))]];
         }
         if(p&&compact&&mode!=="bell"&&!isTurnout(mode))metrics=[metrics[0]];
         if(compact&&isTurnout(mode))metrics=metrics.slice(0,2);
@@ -173,7 +173,7 @@
         const election=mode==="bell";
         foot.replaceChildren();
         if(mode === 'repeat'){
-          foot.append('Current active voters with recorded participation on at least two of three dates. November 23, 2026 file. ');
+          foot.append('Active voters who cast a ballot in at least two of the three elections we reviewed. November 23, 2026 file. ');
           const methodology = node('a',null,'Dates and methods');
           methodology.href = '#voterfile';
           foot.append(methodology);

@@ -37,24 +37,23 @@ function watch(){return '<div class="watch">'+icon('flag')+'<div><p><b>December 
 function voterfile(){
   const file = DATA.voterFile;
   const [none, one, two, three] = file.tiers;
-  const dates = ['Oct 14, 2023 · State primary', 'Dec 7, 2024 · December runoff', 'Mar 29, 2025 · Amendment election'];
+  const dates = ['October 14, 2023 · State primary', 'December 7, 2024 · Runoff election', 'March 29, 2025 · Constitutional amendment election'];
   const row = cells => '<tr>' + cells.map((v,i) => i === 0 ? '<th scope="row">' + v + '</th>' : '<td class="num">' + v + '</td>').join('') + '</tr>';
   const areaRows = Object.entries(file.areas).map(([id, counts]) => {
     const active = counts.reduce((a,b) => a+b, 0);
     return row([id.replace('1-', '1 / '), num(active), num(counts[2]), num(counts[3]), pct(counts[2]+counts[3], active)]);
   }).join('');
-  const headCells = ['Ward / precinct area', 'Active records', 'Exactly two', 'All three', 'Share with two or three'];
+  const headCells = ['Ward / precinct area', 'Active voters', 'Voted in exactly 2', 'Voted in all 3', 'Share who voted in at least 2'];
   const datesRows = dates.map((label,i) => bar(label,file.participation[i],file.records,'#365c83')).join('');
-  root.innerHTML = head('Active voter file', 'Which current voters have a recorded history of participating in state and local elections?', 'House District 61 / November 23, 2026')
-    + '<section class="stats" aria-label="Voter file totals">'
-    + metric('Active records', num(file.records), 'All 32 file precinct codes', 'users')
-    + metric('Two or three dates', num(two + three), pct(two + three, file.records) + ' of the active file', 'ballot')
-    + metric('All three dates', num(three), 'Recorded on every benchmark date', 'calendar')
-    + metric('Exactly two dates', num(two), 'Additional active voters', 'layers') + '</section>'
-    + '<div class="split"><section class="panel panelpad"><h2>Recorded participation</h2><p class="help">Each bar counts current active registrants who have that election date in their file. A voter can appear in more than one bar.</p>' + datesRows + '</section>'
-    + '<section class="panel panelpad"><h2>How to read the counts</h2><p>The comparison uses three elections on separate dates outside the presidential general election. A record can show participation anywhere in Louisiana. It does not identify the contest or candidate a person voted for.</p>'
-    + '<p>' + num(one) + ' people have one of these dates in their history and ' + num(none) + ' have none of the three. New registrants had fewer opportunities. The state supplies up to 20 entries per voter, so an older vote can fall outside the file.</p></section></div>'
-    + '<section class="panel sectiongap"><div class="cardhead"><div><h2>Participation by precinct area</h2><p class="help">The 32 file codes roll up to 24 mapped areas. Counts use the current precinct of residence. A and B splits appear together.</p></div>'+titlelink('atlas','Open atlas')+'</div>'
+  root.innerHTML = head('Active voter file', 'How many active voters in the November 23, 2026 file cast a ballot in the three elections below?', 'House District 61 / November 23, 2026')
+    + '<section class="split voter-summary" aria-label="Active voters and their election participation">'
+    + metric('Active registered voters', num(file.records), 'People listed as active in the District 61 voter file on November 23, 2026. This is the total used for the percentage.', 'users')
+    + metric('Voted in at least 2 of the 3 elections', num(two + three), pct(two + three, file.records) + ' of all ' + num(file.records) + ' active voters.'
+      + '<ul class="voter-breakdown"><li><strong>' + num(three) + '</strong> voted in all three elections.</li><li><strong>' + num(two) + '</strong> voted in exactly two elections.</li></ul>', 'ballot') + '</section>'
+    + '<div class="split"><section class="panel panelpad"><h2>Which three elections?</h2><p class="help">Each bar shows how many people in the November 23 file voted on that date. Someone who voted in all three appears in each bar and counts once in the total above.</p>' + datesRows + '</section>'
+    + '<section class="panel panelpad"><h2>What about the other ' + num(none + one) + ' voters?</h2><p>They are also registered as active. Of this group, ' + num(one) + ' have a recorded vote in exactly one of these elections and ' + num(none) + ' have no recorded vote in these three elections.</p>'
+    + '<p>New registrants had fewer opportunities to vote. The state supplies up to 20 entries per voter, so older votes can fall outside this file. A recorded date shows that a person cast a ballot in Louisiana. Their candidate choices are private.</p></section></div>'
+    + '<section class="panel sectiongap"><div class="cardhead"><div><h2>Participation by precinct area</h2><p class="help">The voter file lists 32 precinct codes. The map combines A and B subdivisions into 24 precinct areas. The table groups voters by where they live now.</p></div>'+titlelink('atlas','Open atlas')+'</div>'
     + '<div class="votertable" tabindex="0" role="region" aria-label="Precinct participation table"><table class="tbl"><thead><tr>'
     + headCells.map(h=>'<th scope="col">'+h+'</th>').join('')+'</tr></thead><tbody>'+areaRows
     + '</tbody><tfoot>'+row(['District total',num(file.records),num(two),num(three),pct(two+three,file.records)])+'</tfoot></table></div></section>'
@@ -63,7 +62,7 @@ function voterfile(){
 }
 
 function overview(){
- root.innerHTML=hero+'<section class="stats" aria-label="District indicators">'+metric('Registered voters',num(current.total),'House District 61 · Nov 1, 2026','users')+metric('District turnout','47.4%','Nov 3, 2026 · 12,171 voters','ballot')+metric('Active voter file',num(DATA.voterFile.records),'District 61 · Nov 23, 2026','users')+metric('Bell’s council vote','47.2%','6,092 votes · Council District 7, 2024','flag')+'</section><section class="panel voterupdate"><div><h2>Repeat voters in District 61</h2><p>'+num(DATA.voterFile.tiers[2]+DATA.voterFile.tiers[3])+' active voters participated on at least two of three benchmark dates.</p></div>'+titlelink('voterfile','Explore the active voter file')+'</section><div class="gridmain"><section class="panel">'+cardHead('Geography','District atlas',titlelink('atlas','Open atlas'))+'<div id="atlasMap"></div></section><section class="panel">'+cardHead('November 2026','Who is registered?')+'<div class="partyblock" id="mix"></div>'+sourcebar(ret.registration,'Louisiana Secretary of State','District 61')+'</section></div><div class="sectiontop"><div class="mini">Campaign decisions</div></div><div class="split">'+watch()+'<div class="panel story"><div class="mini">The next investment</div><h3>Reach beyond the council footprint</h3><p>Eight House precinct areas, home to 9,193 registered voters, were outside Bell’s 2024 council contest. A field plan for these neighborhoods is a distinct piece of work.</p>'+titlelink('investment','Review the proposed scope')+'</div></div>';
+ root.innerHTML=hero+'<section class="stats" aria-label="District indicators">'+metric('Registered voters',num(current.total),'House District 61 · Nov 1, 2026','users')+metric('District turnout','47.4%','Nov 3, 2026 · 12,171 voters','ballot')+metric('Active voter file',num(DATA.voterFile.records),'District 61 · Nov 23, 2026','users')+metric('Bell’s council vote','47.2%','6,092 votes · Council District 7, 2024','flag')+'</section><section class="panel voterupdate"><div><h2>Repeat voters in District 61</h2><p>'+num(DATA.voterFile.tiers[2]+DATA.voterFile.tiers[3])+' active voters cast a ballot in at least two of the three elections we reviewed.</p></div>'+titlelink('voterfile','Explore the active voter file')+'</section><div class="gridmain"><section class="panel">'+cardHead('Geography','District atlas',titlelink('atlas','Open atlas'))+'<div id="atlasMap"></div></section><section class="panel">'+cardHead('November 2026','Who is registered?')+'<div class="partyblock" id="mix"></div>'+sourcebar(ret.registration,'Louisiana Secretary of State','District 61')+'</section></div><div class="sectiontop"><div class="mini">Campaign decisions</div></div><div class="split">'+watch()+'<div class="panel story"><div class="mini">The next investment</div><h3>Reach beyond the council footprint</h3><p>Eight House precinct areas, home to 9,193 registered voters, were outside Bell’s 2024 council contest. A field plan for these neighborhoods is a distinct piece of work.</p>'+titlelink('investment','Review the proposed scope')+'</div></div>';
  bindMix();bindMap(true);
 }
 function atlas(){

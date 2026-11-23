@@ -14,3 +14,5 @@
 .voterupdate{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:16px 22px;margin:0 0 20px;border-left:4px solid #994254}
 .voterupdate h2,.voterupdate p{margin:0}.voterupdate .textbtn{flex-shrink:0}.votertable{overflow-x:auto}.votertable table{min-width:560px}.votertable tfoot{font-weight:700;background:#edf2f6}
 @media(max-width:700px){.voterupdate{display:block}.voterupdate .textbtn{display:inline-block;margin-top:8px}}
+
+.voter-summary{margin:18px 0 24px}.voter-breakdown{margin:10px 0 0;padding-left:1.2em}.voter-breakdown li+li{margin-top:3px}
