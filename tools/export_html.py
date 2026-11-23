@@ -38,7 +38,7 @@ def script(text):
 def export(output):
     page = (SITE / "index.html").read_text(encoding="utf-8")
     page = re.sub(r'<link rel="stylesheet" href="([^"]+)">',
-                  lambda m: "<style>" + inline_css(SITE / m.group(1)) + "</style>", page)
+                  lambda m: "<style>" + inline_css(SITE / m.group(1).split("?", 1)[0]) + "</style>", page)
     page = page.replace('src="provisional_logo.png"', 'src="' + data_uri(SITE / "provisional_logo.png") + '"')
     embedded = {
         "geography": json.loads((MAP / "geodata.json").read_text()),
@@ -51,8 +51,9 @@ def export(output):
     prefix += script(leaflet)
 
     def inline_script(match):
-        text = (SITE / match.group(1)).read_text(encoding="utf-8")
-        if match.group(1) == "app.js":
+        name = match.group(1).split("?", 1)[0]
+        text = (SITE / name).read_text(encoding="utf-8")
+        if name == "app.js":
             text = text.replace('href="bell.jpg"', 'href="' + data_uri(SITE / "bell.jpg") + '"')
         return script(text)
 
