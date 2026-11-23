@@ -14,6 +14,15 @@
   for(const [id,year] of [["turnout26","2026"],["turnout24","2024"]]){
     values[id]={name:year+" November turnout",key:[["Below 40%","#d5e5ee"],["40% to under 55%","#9ebfd4"],["55% or more","#598bae"]],color:p=>p[id].turnoutPct>=55?"#598bae":p[id].turnoutPct>=40?"#9ebfd4":"#d5e5ee"};
   }
+  values.repeat = {
+    name: 'Voters on two or three dates',
+    key: [['Below 200','#d5e5ee'],['200 to 299','#9ebfd4'],['300 or more','#598bae']],
+    color(p) {
+      const tiers = DATA.voterFile.areas[p.id];
+      const count = tiers[2] + tiers[3];
+      return count >= 300 ? '#598bae' : count >= 200 ? '#9ebfd4' : '#d5e5ee';
+    }
+  };
   const usesCouncil=mode=>mode==="overlap"||mode==="bell";
   const isTurnout=mode=>mode==="turnout24"||mode==="turnout26";
   const icons = {
@@ -141,6 +150,11 @@
           metrics=[["Turnout",t.turnoutPct.toFixed(1)+"%"],["Voted",fmt(t.voted)],["Registered on election date",fmt(t.registered)]];
           if(!p)scope.textContent=mode==="turnout26"?"November 2026 federal midterm":"November 2024 presidential election";
         }
+        if(mode === 'repeat'){
+          const tiers = p ? DATA.voterFile.areas[p.id] : DATA.voterFile.tiers;
+          scope.textContent = 'Active file · Nov 23, 2026';
+          metrics = [['Two or three dates',fmt(tiers[2]+tiers[3])],['All three dates',fmt(tiers[3])],['Active records',fmt(tiers.reduce((a,b)=>a+b,0))]];
+        }
         if(p&&compact&&mode!=="bell"&&!isTurnout(mode))metrics=[metrics[0]];
         if(compact&&isTurnout(mode))metrics=metrics.slice(0,2);
         if(compact&&!p&&mode==="registration")metrics=[["Registered",fmt(geography.summary.registration.registered)]];
@@ -158,6 +172,13 @@
       function reference(){
         const election=mode==="bell";
         foot.replaceChildren();
+        if(mode === 'repeat'){
+          foot.append('Current active voters with recorded participation on at least two of three dates. November 23, 2026 file. ');
+          const methodology = node('a',null,'Dates and methods');
+          methodology.href = '#voterfile';
+          foot.append(methodology);
+          return;
+        }
         if(isTurnout(mode)){
           foot.append(mode==="turnout26"?"November 3, 2026. ":"November 5, 2024. ","Participation by home precinct, all voting methods. ",link("Secretary of State turnout",geography.sources[mode]));return;
         }
